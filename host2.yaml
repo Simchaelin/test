@@ -1,0 +1,113 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2.2'
+
+volumes:
+  orderer3:
+  orderer4:
+  #orderer.example.com:
+  organizer0-peer1:
+  participants0-peer2:
+
+networks:
+  myvoice:
+    name: first-myvoice
+
+services:
+
+  orderer3:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer3
+    #image: hyperledger/fabric-orderer:$IMAGE_TAG
+    environment:
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_LISTENPORT=13050
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/orderers/orderer3.orderer-org/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/orderers/orderer3.orderer-org/tls/:/var/hyperledger/orderer/tls
+        #- orderer3.orderer-org:/var/hyperledger/production/orderer
+    ports:
+      - 13050:13050
+    networks:
+      - myvoice
+
+  orderer4:
+    extends:
+      file: base/peer-base.yaml
+      service: orderer-base
+    container_name: orderer4
+    #image: hyperledger/fabric-orderer:$IMAGE_TAG
+    environment:
+      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+      - ORDERER_KAFKA_VERBOSE=true
+      - ORDERER_GENERAL_LISTENPORT=14050
+    volumes:
+        - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ./crypto-config/ordererOrganizations/orderers/orderer4.orderer-org/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/orderers/orderer4.orderer-org/tls/:/var/hyperledger/orderer/tls
+        #- orderer4.orderer-org:/var/hyperledger/production/orderer
+    ports:
+      - 14050:14050
+    networks:
+      - myvoice
+
+  organizer0-peer1:
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    container_name: organizer0-peer1
+    #image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_PEER_ID=organizer0-peer1
+      - CORE_PEER_ADDRESS=organizer0-peer1:11051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_CHAINCODEADDRESS=organizer0-peer1:11051
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=organizer0-peer1:11051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=organizer0-peer1:11051
+      - CORE_PEER_LOCALMSPID=OrganizerOrg0MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/organizer0-org/peers/peer1.organizer0-org/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/organizer0-org/peers/peer1.organizer0-org/tls:/etc/hyperledger/fabric/tls
+        #- peer1.organizer0-org:/var/hyperledger/production
+    #working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    #command: peer node start
+    ports:
+      - 11051:11051
+    networks:
+      - myvoice
+
+  participants0-peer1:
+    extends:
+      file: base/peer-base.yaml
+      service: peer-base
+    container_name: participants0-peer1
+    #image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - CORE_PEER_ID=participants0-peer1
+      - CORE_PEER_ADDRESS=participants0-peer1:13051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:13051
+      - CORE_PEER_CHAINCODEADDRESS=participants0-peer1:13052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:13052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=participants0-peer1:13051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=participants0-peer1:13051
+      - CORE_PEER_LOCALMSPID=ParticipantsOrg0MSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/participants0-org/peers/peer1.organizer0-org/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/participants0-org/peers/peer1.organizer0-org/tls:/etc/hyperledger/fabric/tls
+        #- peer1.organizer0-org:/var/hyperledger/production
+    #working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    #command: peer node start
+    ports:
+      - 13051:13051
+    networks:
+      - myvoice
+
