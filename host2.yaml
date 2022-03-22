@@ -24,9 +24,9 @@ services:
     container_name: orderer3
     #image: hyperledger/fabric-orderer:$IMAGE_TAG
     environment:
-      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
-      - ORDERER_KAFKA_VERBOSE=true
       - ORDERER_GENERAL_LISTENPORT=13050
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:13053
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer3:13443
     volumes:
         - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
         - ./crypto-config/ordererOrganizations/orderers/orderer3.orderer-org/msp:/var/hyperledger/orderer/msp
@@ -34,6 +34,8 @@ services:
         #- orderer3.orderer-org:/var/hyperledger/production/orderer
     ports:
       - 13050:13050
+      - 13053:13053
+      - 13443:13443
     networks:
       - myvoice
 
@@ -44,9 +46,9 @@ services:
     container_name: orderer4
     #image: hyperledger/fabric-orderer:$IMAGE_TAG
     environment:
-      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
-      - ORDERER_KAFKA_VERBOSE=true
       - ORDERER_GENERAL_LISTENPORT=14050
+      - ORDERER_ADMIN_LISTENADDRESS=0.0.0.0:14053
+      - ORDERER_OPERATIONS_LISTENADDRESS=orderer4:14443
     volumes:
         - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
         - ./crypto-config/ordererOrganizations/orderers/orderer4.orderer-org/msp:/var/hyperledger/orderer/msp
@@ -54,6 +56,8 @@ services:
         #- orderer4.orderer-org:/var/hyperledger/production/orderer
     ports:
       - 14050:14050
+      - 14053:14053
+      - 14443:14443
     networks:
       - myvoice
 
@@ -72,6 +76,10 @@ services:
       - CORE_PEER_GOSSIP_BOOTSTRAP=organizer0-peer1:11051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=organizer0-peer1:11051
       - CORE_PEER_LOCALMSPID=OrganizerOrg0MSP
+      # v2.4 추가된 변수
+      - CORE_OPERATIONS_LISTENADDRESS=organizer0-peer1:11444
+      - CORE_METRICS_PROVIDER=prometheus
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1organizer0-org"}
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/organizer0-org/peers/peer1.organizer0-org/msp:/etc/hyperledger/fabric/msp
@@ -81,6 +89,7 @@ services:
     #command: peer node start
     ports:
       - 11051:11051
+      - 11444:11444
     networks:
       - myvoice
 
@@ -99,6 +108,10 @@ services:
       - CORE_PEER_GOSSIP_BOOTSTRAP=participants0-peer1:13051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=participants0-peer1:13051
       - CORE_PEER_LOCALMSPID=ParticipantsOrg0MSP
+      # v2.4 추가된 변수
+      - CORE_OPERATIONS_LISTENADDRESS=participants0-peer1:13444
+      - CORE_METRICS_PROVIDER=prometheus
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer1participants0-org"}
     volumes:
         - /var/run/:/host/var/run/
         - ./crypto-config/peerOrganizations/participants0-org/peers/peer1.organizer0-org/msp:/etc/hyperledger/fabric/msp
@@ -108,6 +121,7 @@ services:
     #command: peer node start
     ports:
       - 13051:13051
+      - 13444:13444
     networks:
       - myvoice
 

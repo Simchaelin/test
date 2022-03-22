@@ -304,24 +304,8 @@ Channel: &ChannelDefaults
 ################################################################################
 Profiles:
 
-    TwoOrgsApplicationGenesis:
-        Consortium: SampleConsortium
-        <<: *ChannelDefaults
-        Orderer:
-            <<: *OrdererDefaults
-            Organizations:
-                - *OrdererOrg
-            Capabilities: *OrdererCapabilities
-        Application:
-            <<: *ApplicationDefaults
-            Organizations:
-                - *Organizer0
-                - *Participants0
-            Capabilities: *ApplicationCapabilities
     SampleMultiNodeEtcdRaft:
         <<: *ChannelDefaults
-        Capabilities:
-            <<: *ChannelCapabilities
         Orderer:
             <<: *OrdererDefaults
             OrdererType: etcdraft
@@ -353,7 +337,6 @@ Profiles:
                 - orderer2:12050
                 - orderer3:13050
                 - orderer4:14050
-
             Organizations:
             - *OrdererOrg
             Capabilities:
@@ -361,9 +344,6 @@ Profiles:
         Application:
             <<: *ApplicationDefaults
             Organizations:
-            - <<: *OrdererOrg
-        Consortiums:
-            SampleConsortium:
-                Organizations:
                 - *Organizer0
                 - *Participants0
+            Capabilities: *ApplicationCapabilities
