@@ -45,8 +45,8 @@ services:
     #command: orderer
     volumes:
         - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ./crypto-config/ordererOrganizations/orderers/orderer0.orderer-org/msp:/var/hyperledger/orderer/msp
-        - ./crypto-config/ordererOrganizations/orderers/orderer0.orderer-org/tls/:/var/hyperledger/orderer/tls
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer0.orderer-org/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer0.orderer-org/tls/:/var/hyperledger/orderer/tls
         #- orderer0.orderer-org:/var/hyperledger/production/orderer
     ports:
       - 10050:10050
@@ -65,8 +65,8 @@ services:
       - ORDERER_GENERAL_LISTENPORT=11050
     volumes:
         - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ./crypto-config/ordererOrganizations/orderers/orderer1.orderer-org/msp:/var/hyperledger/orderer/msp
-        - ./crypto-config/ordererOrganizations/orderers/orderer1.orderer-org/tls/:/var/hyperledger/orderer/tls
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer1.orderer-org/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer1.orderer-org/tls/:/var/hyperledger/orderer/tls
         #- orderer1.orderer-org:/var/hyperledger/production/orderer
     ports:
       - 11050:11050
@@ -85,8 +85,8 @@ services:
       - ORDERER_GENERAL_LISTENPORT=12050
     volumes:
         - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
-        - ./crypto-config/ordererOrganizations/orderers/orderer2.orderer-org/msp:/var/hyperledger/orderer/msp
-        - ./crypto-config/ordererOrganizations/orderers/orderer2.orderer-org/tls/:/var/hyperledger/orderer/tls
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer2.orderer-org/msp:/var/hyperledger/orderer/msp
+        - ./crypto-config/ordererOrganizations/orderer-org/orderers/orderer2.orderer-org/tls/:/var/hyperledger/orderer/tls
         #- orderer2.orderer-org:/var/hyperledger/production/orderer
     ports:
       - 12050:12050
@@ -169,12 +169,45 @@ services:
       - CORE_PEER_LOCALMSPID=ParticipantsOrg0MSP
     volumes:
         - /var/run/:/host/var/run/
-        - ./crypto-config/peerOrganizations/participants0-org/peers/peer0.organizer0-org/msp:/etc/hyperledger/fabric/msp
-        - ./crypto-config/peerOrganizations/participants0-org/peers/peer0.organizer0-org/tls:/etc/hyperledger/fabric/tls
+        - ./crypto-config/peerOrganizations/participants0-org/peers/peer0.participants0-org/msp:/etc/hyperledger/fabric/msp
+        - ./crypto-config/peerOrganizations/participants0-org/peers/peer0.participants0-org/tls:/etc/hyperledger/fabric/tls
         #- peer1.organizer0-org:/var/hyperledger/production
     #working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     #command: peer node start
     ports:
       - 12051:12051
+    networks:
+      - myvoice
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:latest
+    labels:
+      service: hyperledger-fabric
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=organizer0-peer0:10051
+      - CORE_PEER_LOCALMSPID=OrganizerOrg0MSP 
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/organizer0-org/peers/peer0.organizer0-org/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/organizer0-org/peers/peer0.organizer0-org/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/organizer0-org/peers/peer0.organizer0-org/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/organizer0-org/users/Admin@organizer0-org/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+        - ../chaincode/:/opt/gopath/src/github.com/chaincode
+        - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/organizations
+        - ../scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts/
+        - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+    depends_on:
+      - orderer0
+      - organizer0-peer0
     networks:
       - myvoice

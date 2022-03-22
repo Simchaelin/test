@@ -116,7 +116,7 @@ PeerOrgs:
     # name collisions
     # ---------------------------------------------------------------------------
     Template:
-      Count: 1
+      Count: 2
       # SANS:
       #   - localhost
       # Start: 5
